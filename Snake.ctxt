@@ -1,0 +1,15 @@
+#BlueJ class context
+comment0.target=Snake
+comment1.params=i\ j
+comment1.target=Snake(int,\ int)
+comment2.params=
+comment2.target=int\ length()
+comment3.params=t
+comment3.target=int\ get_i_of_segment(int)
+comment4.params=t
+comment4.target=int\ get_j_of_segment(int)
+comment5.params=i\ j
+comment5.target=void\ grow_tail_at(int,\ int)
+comment6.params=i\ j
+comment6.target=void\ move_head_to(int,\ int)
+numComments=7

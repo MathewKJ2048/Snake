@@ -1,0 +1,9 @@
+#BlueJ class context
+comment0.target=Field
+comment1.params=r\ c
+comment1.target=Field(int,\ int)
+comment2.params=
+comment2.target=void\ update_snake()
+comment3.params=
+comment3.target=void\ print()
+numComments=4

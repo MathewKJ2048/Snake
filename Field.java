@@ -6,23 +6,28 @@ public class Field
     private int r,c; //rows and columns
     private Snake snake;
     private char head,tail,body,food,empty; //stores characters used to represent given element
-    
+    private int num_food;
+    private boolean is_overlapping;
     public Field(int r, int c)
     {
         this.field = new char[r][c];
         this.r = r;
         this.c = c;
-        this.empty = '.';
+        this.empty = '·';
         this.head = 'O';
         this.tail = '*';
         this.body = '#';
         this.food = '@';
+        this.num_food=0;
         clear_field();
         this.snake = new Snake(r/2,c/2);
-        this.snake.grow_tail_at(r/2 - 1,c/2);
+        this.snake.grow_tail_at(r/2 + 1,c/2);
         update_snake();
+        set_food();
+        check_overlap();
     }
-    public void clear_field()
+    //
+    private void clear_field()
     {
         for(int i=0;i<this.r;i++)
         {
@@ -32,7 +37,7 @@ public class Field
             }
         }
     }
-    public void clear_snake()
+    private void clear_snake()
     {
         int n = this.snake.length();
         for(int t=0;t<n;t++)
@@ -40,17 +45,17 @@ public class Field
             this.field[(this.snake.get_i_of_segment(t)%this.r+r)%this.r][(this.snake.get_j_of_segment(t)%this.c+c)%this.c]=this.empty;
         }
     }
-    public void update_snake()
+    private void update_snake()
     {
         int n = this.snake.length();
         for(int t=1;t<n-1;t++)
         {
             this.field[(this.snake.get_i_of_segment(t)%this.r+r)%this.r][(this.snake.get_j_of_segment(t)%this.c+c)%this.c] = this.body;
         }
-        this.field[(this.snake.get_i_of_segment(0)%this.r+r)%this.r][(this.snake.get_j_of_segment(0)%this.c+c)%this.c] = this.head;
         this.field[(this.snake.get_i_of_segment(n-1)%this.r+r)%this.r][(this.snake.get_j_of_segment(n-1)%this.c+c)%this.c] = this.tail;
+        this.field[(this.snake.get_i_of_segment(0)%this.r+r)%this.r][(this.snake.get_j_of_segment(0)%this.c+c)%this.c] = this.head;
     } 
-    public void set_food()
+    private void set_food()
     {
         Random r = new Random();
         int i,j;
@@ -60,6 +65,24 @@ public class Field
             j = r.nextInt(this.c);
         }while(this.field[i][j] != this.empty);
         this.field[i][j] = this.food;
+        this.num_food++;
+    }
+    private void check_overlap()
+    {
+        int n=this.snake.length();
+        for(int t1=0;t1<n-1;t1++)
+        {
+            for(int t2=t1+1;t2<n;t2++)
+            {
+                if((this.snake.get_i_of_segment(t1)%r+r)%r == (this.snake.get_i_of_segment(t2)%r+r)%r 
+                && (this.snake.get_j_of_segment(t1)%c+c)%c == (this.snake.get_j_of_segment(t2)%c+c)%c)
+                {
+                    this.is_overlapping = true;
+                    return;
+                }
+            }
+        }
+        this.is_overlapping = false;
     }
     //
     public void move(char d)
@@ -95,11 +118,21 @@ public class Field
             if(this.field[(i_new%this.r+r)%this.r][(j_new%this.c+c)%this.c] == this.food)
             {
                 this.snake.grow_tail_at(i_tail,j_tail);
+                num_food--;
             }     
             update_snake();
+            if(this.num_food==0)
+            {
+                set_food();
+            }
+            check_overlap();
         }
+        
     }
-    //
+    public boolean is_overlapping()
+    {
+        return this.is_overlapping;
+    }
     public void print()
     {
         System.out.print('\f');
@@ -128,11 +161,13 @@ public class Field
         do
         {
             f.print();
+            if(f.is_overlapping())
+            {
+                System.out.println("Game over");
+                break;
+            }
             ch = sc.next().charAt(0);
-            if(ch == 'f')f.set_food();
             f.move(ch);
-            f.clear_snake();
-            f.update_snake();
         }while(ch!='q');
     }
 }

@@ -6,6 +6,7 @@ public class Field
     private int r,c; //rows and columns
     private Snake snake;
     private char head,tail,body,food,empty; //stores characters used to represent given element
+    private char UP,DOWN,LEFT,RIGHT,PAUSE_PLAY,QUIT;
     private int num_food;
     private boolean is_overlapping;
     private int moves;
@@ -14,11 +15,21 @@ public class Field
         this.field = new char[r][c];
         this.r = r;
         this.c = c;
+        
+        //graphics
         this.empty = '·';
         this.head = 'O';
         this.tail = '*';
         this.body = '#';
         this.food = '@';
+        //controls
+        this.UP = 'w';
+        this.DOWN = 's';
+        this.LEFT = 'a';
+        this.RIGHT = 'd';
+        this.PAUSE_PLAY = 'e';
+        this.QUIT = 'q';
+        
         this.num_food=0;
         this.moves = 0;
         clear_field();
@@ -157,6 +168,16 @@ public class Field
         return this.snake.get_direction();
     }
     //
+    public char process(char ch)
+    {
+        if(ch == this.QUIT)return 'q';
+        else if(ch == this.PAUSE_PLAY)return 'e';
+        else if(ch == this.UP)return 'w';
+        else if(ch == this.DOWN)return 's';
+        else if(ch == this.LEFT)return 'a';
+        else if(ch == this.RIGHT)return 'd';
+        else return ' ';
+    }
     static void main()
     {
         Scanner sc=new Scanner(System.in);
@@ -215,6 +236,7 @@ public class Field
                     if(f.is_overlapping())
                     {
                         is_over.n = 1;
+                        f.print();
                         System.out.println("\nGame over: enter any key to quit");
                         break;
                     }
@@ -227,15 +249,15 @@ public class Field
         m.start();
         m.play();
         do
-        {
-            f.print();
+        {   
             if(f.is_overlapping())is_over.n = 1;
             if(is_over.n == 1)
             {
                 System.out.println("\nGame over");
                 break;
             }
-            ch = sc.next().charAt(0);
+            f.print();
+            ch = f.process(sc.next().charAt(0));
             if(ch == 'e')
             {
                 if(m.is_running())m.pause();

@@ -8,6 +8,7 @@ public class Field
     private char head,tail,body,food,empty; //stores characters used to represent given element
     private int num_food;
     private boolean is_overlapping;
+    private int moves;
     public Field(int r, int c)
     {
         this.field = new char[r][c];
@@ -19,6 +20,7 @@ public class Field
         this.body = '#';
         this.food = '@';
         this.num_food=0;
+        this.moves = 0;
         clear_field();
         this.snake = new Snake(r/2,c/2);
         this.snake.grow_tail_at(r/2 + 1,c/2);
@@ -88,6 +90,7 @@ public class Field
     public void move(char d)
     {
         if(d!='w'&&d!='s'&&d!='a'&&d!='d')return;
+        
         int n = this.snake.length();
         int i_new = this.snake.get_i_of_segment(0);
         int j_new = this.snake.get_j_of_segment(0);
@@ -115,6 +118,7 @@ public class Field
         {
             clear_snake();
             this.snake.move_head_to(i_new,j_new);
+            this.moves++;
             if(this.field[(i_new%this.r+r)%this.r][(j_new%this.c+c)%this.c] == this.food)
             {
                 this.snake.grow_tail_at(i_tail,j_tail);
@@ -137,6 +141,8 @@ public class Field
     {
         System.out.print('\f');
         System.out.println("length:"+this.snake.length());
+        System.out.println("moves: "+this.moves);
+        System.out.println();
         for(int i=0;i<this.r;i++)
         {
             for(int j=0;j<this.c;j++)
@@ -146,7 +152,10 @@ public class Field
             System.out.println();
         }
     }
-    
+    public char get_direction()
+    {
+        return this.snake.get_direction();
+    }
     //
     static void main()
     {
@@ -155,19 +164,86 @@ public class Field
         int r = sc.nextInt();
         System.out.println("Enter number of columns:");
         int c = sc.nextInt();
+        System.out.println("Enter delay:");
+        int delay = sc.nextInt();
         Field f = new Field(r,c);
+        class Flag
+        {
+            public int n;
+            public Flag(int n)
+            {
+                this.n = n;
+            }
+        }
+        Flag is_over = new Flag(0);
+        class Mover extends Thread
+        {
+            private boolean run;
+            Mover()
+            {
+                this.run = false;
+            }
+            public boolean is_running()
+            {
+                return this.run;
+            }
+            public void play()
+            {
+                this.run = true;
+            }
+            public void pause()
+            {
+                this.run = false;
+            }
+            public void run()
+            {
+                while(true)
+                {
+                    f.print();
+                    try
+                    {
+                        Thread.sleep(delay);
+                    }
+                    catch(Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                    if(this.run)
+                    {
+                        f.move(f.get_direction());
+                    }
+                    if(f.is_overlapping())
+                    {
+                        is_over.n = 1;
+                        System.out.println("\nGame over: enter any key to quit");
+                        break;
+                    }
+                }
+            }
+        }
+        Mover m = new Mover();
         //
         char ch;
+        m.start();
+        m.play();
         do
         {
             f.print();
-            if(f.is_overlapping())
+            if(f.is_overlapping())is_over.n = 1;
+            if(is_over.n == 1)
             {
-                System.out.println("Game over");
+                System.out.println("\nGame over");
                 break;
             }
             ch = sc.next().charAt(0);
-            f.move(ch);
+            if(ch == 'e')
+            {
+                if(m.is_running())m.pause();
+                else m.play();
+            }
+            if(m.is_running())f.move(ch);
         }while(ch!='q');
+        m.pause();
     }
+    
 }

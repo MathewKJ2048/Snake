@@ -38,4 +38,22 @@ public class Snake
         snake.get(0).i = i;
         snake.get(0).j = j;        
     }
+    //
+    char get_direction()
+    {
+        if(this.snake.size()<2)
+        {
+            return ' ';
+        }
+        if(this.snake.get(0).i == this.snake.get(1).i)
+        {
+            if(this.snake.get(0).j<this.snake.get(1).j) return 'a';
+            else return 'd';
+        }
+        else
+        {
+            if(this.snake.get(0).i<this.snake.get(1).i) return 'w';
+            else return 's';
+        }
+    }
 }
